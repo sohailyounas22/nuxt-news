@@ -1,7 +1,10 @@
 <template>
   <div>
     <h1 class="mb-3 mt-4 font-bold text-lg">Latest News</h1>
-    <template v-if="articles.length && !loading">
+    <template v-if="loading">
+      <Loader />
+    </template>
+    <template v-else-if="articles.length">
       <NewsArticle
         v-for="article in articles"
         :key="article.article_id"
@@ -33,35 +36,65 @@
 </template>
 
 <script setup lang="ts">
-import { useNewsArticles } from "~/composables/useNewsArticles";
-import { useRoute, useRouter } from "vue-router";
+interface Article {
+  article_id: string;
+  title: string;
+  description: string;
+  image_url: string;
+  link: string;
+}
 
-const { articles, nextPage, prevPages, fetchNewsArticles } = useNewsArticles();
+interface ApiResponse {
+  results: Article[];
+  nextPage?: string;
+}
 
+const loading = useState("loading", () => false);
+const articles = ref<Article[]>([]);
+const nextPage = ref<string | null>(null);
+const prevPages = ref<string[]>([]);
 const route = useRoute();
-const router = useRouter();
+
 const currentPageToken = ref<string | null>(route.query.page as string | null);
-const loading = useState("loading");
 
-// Fetch articles when the route changes
-watch(
-  () => route.query.page,
-  (newPageToken) => {
-    // Ensure `newPageToken` is a string or null
-    currentPageToken.value = Array.isArray(newPageToken)
-      ? newPageToken[0]
-      : newPageToken || null;
-    fetchNewsArticles(currentPageToken.value);
-  },
-  { immediate: true }
-);
+const fetchNewsArticles = async (pageToken: string = "") => {
+  loading.value = true;
+  try {
+    const runtimeConfig = useRuntimeConfig();
+    const apiKey = runtimeConfig.public.newsApiKey;
+    const apiUrl = `https://newsdata.io/api/1/latest?apikey=${apiKey}${
+      pageToken ? `&page=${pageToken}` : ""
+    }`;
 
-// Navigation logic
+    const data = await $fetch<ApiResponse>(apiUrl);
+
+    if (data) {
+      articles.value = data.results || [];
+      nextPage.value = data.nextPage || null;
+
+      if (
+        currentPageToken.value &&
+        !prevPages.value.includes(currentPageToken.value)
+      ) {
+        prevPages.value.push(currentPageToken.value);
+      }
+    }
+  } catch (error) {
+    console.error("Failed to fetch articles:", error);
+    articles.value = [];
+    nextPage.value = null;
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Initial load
+await fetchNewsArticles(currentPageToken.value || "");
+
 const hasPrevPage = computed(() => prevPages.value.length > 0);
 
 const gotoPrevPage = () => {
   if (!hasPrevPage.value) return;
-  loading.value = true;
   prevPages.value.pop();
   const prevPageToken = prevPages.value[prevPages.value.length - 1] || null;
   navigateTo({ query: { page: prevPageToken } });
@@ -69,17 +102,31 @@ const gotoPrevPage = () => {
 
 const gotoNextPage = () => {
   if (!nextPage.value) return;
-  loading.value = true;
-
   navigateTo({ query: { page: nextPage.value } });
 };
 
+// Watch route changes
+watch(
+  () => route.query.page,
+  async (newPageToken) => {
+    currentPageToken.value = Array.isArray(newPageToken)
+      ? newPageToken[0]
+      : newPageToken || null;
+    await fetchNewsArticles(currentPageToken.value || "");
+  },
+  { immediate: true }
+);
+
 useHead({
-  title: `Latest News`,
+  title: `Latest News ${
+    currentPageToken.value ? `- Page ${currentPageToken.value}` : ""
+  }`,
   meta: [
     {
       name: "description",
-      content: "Read the latest news articles on our website.",
+      content: `Read the latest news articles${
+        currentPageToken.value ? ` on page ${currentPageToken.value}` : ""
+      }.`,
     },
     { name: "keywords", content: "latest news, news articles, breaking news" },
   ],

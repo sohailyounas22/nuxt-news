@@ -5,9 +5,4 @@
     </div>
     <slot />
   </div>
-  <Loader v-if="loading" />
 </template>
-
-<script setup lang="ts">
-const loading = useState("loading");
-</script>
