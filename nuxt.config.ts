@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      newsApiKey: process.env.NUXT_PUBLIC_NEWS_API_KEY,
+      newsApiKey: "pub_60249e93206388243348e2859da1d94947a84",
     },
   },
 });
