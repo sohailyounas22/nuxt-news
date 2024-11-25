@@ -46,20 +46,18 @@ if (articleId.value) {
   await fetchSingleNewsPost(articleId.value);
 }
 
-// Image loading state
 const imageLoading = ref(true);
 
 const onImageLoad = () => {
   imageLoading.value = false;
 };
 
-
 useHead({
-  title: `News - ${ article.value?.title ?? ''}`,
+  title: `News - ${article.value?.title ?? ""}`,
   meta: [
     {
       name: "description",
-      content: `Read the news: ${ article.value?.description ?? "" }.`,
+      content: `Read the news: ${article.value?.description ?? ""}.`,
     },
     { name: "keywords", content: "latest news, news articles, breaking news" },
   ],

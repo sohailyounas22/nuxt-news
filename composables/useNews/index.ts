@@ -44,7 +44,7 @@ export const useNews: UseNewsReturn = () => {
       return;
     } catch (error) {
       console.error("An error occurred during address lookup:", error);
-      throw error; // Rethrow the error to handle it in the calling component
+      throw error;
     }
   };
 
@@ -80,7 +80,7 @@ export const useNews: UseNewsReturn = () => {
       return;
     } catch (error) {
       console.error("An error occurred during address lookup:", error);
-      throw error; // Rethrow the error to handle it in the calling component
+      throw error;
     }
   };
 

@@ -62,8 +62,13 @@ await fetchNews(currentPageToken.value || "");
 const gotoPrevPage = () => {
   const CurrentPageIndex = pagesArray.value.indexOf(prevPage.value);
   if (CurrentPageIndex === -1) return;
-  if (CurrentPageIndex >= 0) {
-    const PreviousPageIndex = CurrentPageIndex - 1;
+  const PreviousPageIndex = CurrentPageIndex - 1;
+  console.log(">>CurrentPageIndex", CurrentPageIndex);
+
+  if (CurrentPageIndex === 1) {
+    navigateTo("/");
+  }
+  if (CurrentPageIndex > 1) {
     navigateTo({ query: { page: pagesArray.value[PreviousPageIndex] } });
   }
 };
