@@ -1,75 +1,31 @@
-# Nuxt Minimal Starter
+# JUSTLIFE
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This template is built in NUXT 3, utilizing Tailwind CSS and employing the Composition API.
 
-## Setup
+## IDE Setup
 
-Make sure to install dependencies:
+I am using https://code.visualstudio.com/ for this project.
 
-```bash
-# npm
+## Setup on New Machine
+Step 1:
+sh
+git clone [https://github.com/fawadaslam1/teo-vuejs-test.git](https://github.com/sohailyounas22/nuxt-news)
+
+Step 2:
+sh
 npm install
 
-# pnpm
-pnpm install
+Step 3:
+sh
+npm run format
 
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
+Step 4:
+sh
 npm run dev
 
-# pnpm
-pnpm dev
 
-# yarn
-yarn dev
+### Lint with https://eslint.org/
 
-# bun
-bun run dev
-```
+sh
+npm run lint
 
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
