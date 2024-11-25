@@ -8,7 +8,7 @@ I am using https://code.visualstudio.com/ for this project.
 
 ## Setup on New Machine
 Step 1:
-git clone [https://github.com/fawadaslam1/teo-vuejs-test.git](https://github.com/sohailyounas22/nuxt-news)
+git clone https://github.com/sohailyounas22/nuxt-news
 
 Step 2:
 npm install
