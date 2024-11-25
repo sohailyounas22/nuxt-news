@@ -5,15 +5,15 @@
       <Loader />
     </template>
     <template v-else-if="article">
-      <h2 class="font-bold text-lg mb-2">{{ article?.title }}</h2>
-      <p class="mb-3">{{ article?.description }}</p>
+      <h2 class="font-bold md:text-lg mb-2">{{ article?.title }}</h2>
+      <p class="mb-3 text-sm md:text-base">{{ article?.description }}</p>
       <div
         class="relative flex items-center justify-center"
         v-if="article?.image_url"
       >
         <div
           v-if="imageLoading"
-          class="w-[600px] h-[400px] absolute left-2/4 -translate-x-2/4 top-0 bg-gray-300 animate-pulse rounded-md"
+          class="md:w-[600px] w-full h-[400px] absolute left-2/4 -translate-x-2/4 top-0 bg-gray-300 animate-pulse rounded-md"
         ></div>
         <img
           :src="article?.image_url"
