@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      newsApiKey: "pub_603246033ff668f350d23a635e9669cea5171",
+      newsApiKey: "pub_597668b87fa2f4bb848ef4c8a77012c633cd2",
     },
   },
 });
