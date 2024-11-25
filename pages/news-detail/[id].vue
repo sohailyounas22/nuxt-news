@@ -36,54 +36,14 @@
 </template>
 
 <script setup lang="ts">
-interface Article {
-  article_id: string;
-  title: string;
-  description: string;
-  image_url: string;
-  link: string;
-}
-
-interface ApiResponse {
-  results: Article[];
-  nextPage?: string;
-}
-
-const loading = useState("loading", () => false);
+const { singleArticleData: article, loading, fetchSingleNewsPost } = useNews();
 
 const route = useRoute();
 const { id } = route.params;
 const articleId = ref<string | null>(id as string | null);
-
-const article = ref<Article | null>(null);
-
-const fetchNewsDetail = async (id: string) => {
-  loading.value = true;
-  try {
-    const runtimeConfig = useRuntimeConfig();
-    const apiKey = runtimeConfig.public.newsApiKey;
-    const apiUrl = `https://newsdata.io/api/1/latest?apikey=${apiKey}&id=${id}`;
-
-    const response = (await $fetch(apiUrl)) as ApiResponse;
-    article.value = response.results[0] || null;
-
-    if (article.value) {
-      useHead({
-        title: article.value.title,
-        meta: [{ name: "description", content: article.value.description }],
-      });
-    }
-  } catch (error) {
-    console.error("Failed to fetch article details:", error);
-    article.value = null;
-  } finally {
-    loading.value = false;
-  }
-};
-
 // Initial load
 if (articleId.value) {
-  await fetchNewsDetail(articleId.value);
+  await fetchSingleNewsPost(articleId.value);
 }
 
 // Image loading state
@@ -92,4 +52,16 @@ const imageLoading = ref(true);
 const onImageLoad = () => {
   imageLoading.value = false;
 };
+
+
+useHead({
+  title: `News - ${ article.value?.title ?? ''}`,
+  meta: [
+    {
+      name: "description",
+      content: `Read the news: ${ article.value?.description ?? "" }.`,
+    },
+    { name: "keywords", content: "latest news, news articles, breaking news" },
+  ],
+});
 </script>

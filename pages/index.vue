@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h1 class="mb-3 mt-4 font-bold text-lg">Latest News</h1>
     <template v-if="loading">
       <Loader />
     </template>
-    <template v-else-if="articles.length">
+    <template v-else-if="articles && articles.length > 0">
+      <h1 class="mb-3 mt-4 font-bold text-lg">Latest News</h1>
       <NewsArticle
         v-for="article in articles"
         :key="article.article_id"
@@ -15,9 +15,9 @@
       <div class="flex justify-center gap-5 my-8">
         <button
           class="bg-[#00C16A] text-white px-4 py-2 rounded-md text-2xl"
-          :class="{ 'bg-gray-400 hover:cursor-not-allowed': !hasPrevPage }"
+          :class="{ 'bg-gray-400 hover:cursor-not-allowed': !prevPage }"
           @click="gotoPrevPage"
-          :disabled="!hasPrevPage"
+          :disabled="!prevPage"
           aria-label="Previous page"
         >
           Prev
@@ -32,89 +32,54 @@
         </button>
       </div>
     </template>
+    <template v-else>
+      <div
+        class="flex items-center justify-center flex-col pt-24 pb-32"
+        data-testid="cart-page-content"
+      >
+        <img
+          src="/images/empty-results.svg"
+          alt="No Results"
+          width="192"
+          height="192"
+        />
+        <h1 class="mt-8">No Results Found</h1>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-interface Article {
-  article_id: string;
-  title: string;
-  description: string;
-  image_url: string;
-  link: string;
-}
-
-interface ApiResponse {
-  results: Article[];
-  nextPage?: string;
-}
-
-const loading = useState("loading", () => false);
-const articles = ref<Article[]>([]);
-const nextPage = ref<string | null>(null);
-const prevPages = ref<string[]>([]);
+const { data: articles, loading, nextPage, prevPage, fetchNews } = useNews();
 const route = useRoute();
 
 const currentPageToken = ref<string | null>(route.query.page as string | null);
 
-const fetchNewsArticles = async (pageToken: string = "") => {
-  loading.value = true;
-  try {
-    const runtimeConfig = useRuntimeConfig();
-    const apiKey = runtimeConfig.public.newsApiKey;
-    const apiUrl = `https://newsdata.io/api/1/latest?apikey=${apiKey}${
-      pageToken ? `&page=${pageToken}` : ""
-    }`;
+const pagesArray = ref<string[]>([""]);
 
-    const data = await $fetch<ApiResponse>(apiUrl);
-
-    if (data) {
-      articles.value = data.results || [];
-      nextPage.value = data.nextPage || null;
-
-      if (
-        currentPageToken.value &&
-        !prevPages.value.includes(currentPageToken.value)
-      ) {
-        prevPages.value.push(currentPageToken.value);
-      }
-    }
-  } catch (error) {
-    console.error("Failed to fetch articles:", error);
-    articles.value = [];
-    nextPage.value = null;
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Initial load
-await fetchNewsArticles(currentPageToken.value || "");
-
-const hasPrevPage = computed(() => prevPages.value.length > 0);
+await fetchNews(currentPageToken.value || "");
 
 const gotoPrevPage = () => {
-  if (!hasPrevPage.value) return;
-  prevPages.value.pop();
-  const prevPageToken = prevPages.value[prevPages.value.length - 1] || null;
-  navigateTo({ query: { page: prevPageToken } });
+  const CurrentPageIndex = pagesArray.value.indexOf(prevPage.value);
+  if (CurrentPageIndex === -1) return;
+  if (CurrentPageIndex >= 0) {
+    const PreviousPageIndex = CurrentPageIndex - 1;
+    navigateTo({ query: { page: pagesArray.value[PreviousPageIndex] } });
+  }
 };
 
 const gotoNextPage = () => {
   if (!nextPage.value) return;
+  pagesArray.value.push(nextPage.value);
   navigateTo({ query: { page: nextPage.value } });
 };
 
 // Watch route changes
 watch(
-  () => route.query.page,
-  async (newPageToken) => {
-    currentPageToken.value = Array.isArray(newPageToken)
-      ? newPageToken[0]
-      : newPageToken || null;
-    await fetchNewsArticles(currentPageToken.value || "");
-  },
-  { immediate: true }
+  () => route.fullPath,
+  async () => {
+    await fetchNews((route.query.page as string) || "");
+  }
 );
 
 useHead({

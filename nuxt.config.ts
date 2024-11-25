@@ -9,9 +9,12 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
+  imports: {
+    dirs: ["composables/**"],
+  },
   runtimeConfig: {
     public: {
-      newsApiKey: "pub_60249e93206388243348e2859da1d94947a84",
+      newsApiKey: "pub_603246033ff668f350d23a635e9669cea5171",
     },
   },
 });
